@@ -1,114 +1,125 @@
-student_records = []
+import random
+import string
+
+password_storage = []
 
 
-def generate_student_id():
-    return f"STU{len(student_records) + 1:03}"
+def build_secure_password():
+    print("\n====== SecurePass Lab ======")
 
-
-def calculate_grade(score):
-    if score >= 90:
-        return "A+"
-    elif score >= 75:
-        return "A"
-    elif score >= 60:
-        return "B"
-    elif score >= 40:
-        return "C"
-    else:
-        return "Fail"
-
-
-def add_new_student():
-    print("\n========== Add Student ==========")
-
-    student_name = input("Enter Student Name: ")
-    roll_number = input("Enter Roll Number: ")
+    account_name = input("Password label (Ex: Gmail): ")
 
     try:
-        student_marks = float(input("Enter Marks (0-100): "))
-
-        if student_marks < 0 or student_marks > 100:
-            print("Marks should be between 0 and 100!")
-            return
-
+        password_size = int(input("Choose password length: "))
     except ValueError:
-        print("Invalid input! Please enter numbers only.")
+        print("Numbers only allowed!")
         return
 
-    student_data = {
-        "id": generate_student_id(),
-        "name": student_name,
-        "roll": roll_number,
-        "marks": student_marks,
-        "grade": calculate_grade(student_marks)
-    }
-
-    student_records.append(student_data)
-
-    print("\n✅ Student Added Successfully!")
-    print("Student ID:", student_data["id"])
-
-
-def display_all_students():
-    print("\n========== Student Records ==========")
-
-    if len(student_records) == 0:
-        print("No student data available.")
+    if password_size < 6:
+        print("Password too short! Minimum 6 characters.")
         return
 
-    for student in student_records:
-        print("\n--------------------------------")
-        print("Student ID :", student["id"])
-        print("Name       :", student["name"])
-        print("Roll No    :", student["roll"])
-        print("Marks      :", student["marks"])
-        print("Grade      :", student["grade"])
+    add_symbols = input(
+        "Need special symbols? (yes/no): "
+    ).lower()
+
+    base_characters = (
+        string.ascii_lowercase +
+        string.ascii_uppercase +
+        string.digits
+    )
+
+    if add_symbols == "yes":
+        base_characters += "@#$%&*!?"
+
+    generated_password = ""
+
+    for _ in range(password_size):
+        generated_password += random.choice(base_characters)
+
+    password_score = evaluate_password(generated_password)
+
+    password_storage.append({
+        "label": account_name,
+        "password": generated_password,
+        "score": password_score
+    })
+
+    print("\nPassword Created Successfully!")
+    print("Account :", account_name)
+    print("Password:", generated_password)
+    print("Security Score:", password_score, "/10")
+
+    random_security_advice()
 
 
-def search_student():
-    print("\n========== Search Student ==========")
+def evaluate_password(password):
+    points = 0
 
-    search_roll = input("Enter Roll Number: ")
+    if len(password) >= 8:
+        points += 2
 
-    found = False
+    if any(letter.isupper() for letter in password):
+        points += 2
 
-    for student in student_records:
-        if student["roll"] == search_roll:
-            print("\nStudent Found!")
-            print("---------------------------")
-            print("Student ID :", student["id"])
-            print("Name       :", student["name"])
-            print("Marks      :", student["marks"])
-            print("Grade      :", student["grade"])
-            found = True
-            break
+    if any(letter.islower() for letter in password):
+        points += 2
 
-    if not found:
-        print("Student not found!")
+    if any(letter.isdigit() for letter in password):
+        points += 2
+
+    special_symbols = "@#$%&*!?"
+    if any(letter in special_symbols for letter in password):
+        points += 2
+
+    return points
+
+
+def show_saved_passwords():
+    print("\n====== Saved Password List ======")
+
+    if len(password_storage) == 0:
+        print("No passwords saved.")
+        return
+
+    for item_number, item in enumerate(password_storage, start=1):
+        print("\n----------------------------")
+        print("No       :", item_number)
+        print("Account  :", item["label"])
+        print("Password :", item["password"])
+        print("Score    :", item["score"], "/10")
+
+
+def random_security_advice():
+    advice_list = [
+        "Never use your birth date as password.",
+        "Use different passwords for each account.",
+        "Strong passwords reduce hacking risk.",
+        "Use both numbers and symbols."
+    ]
+
+    print("\nSecurity Advice:")
+    print(random.choice(advice_list))
 
 
 while True:
     print("\n")
-    print("===== SMART STUDENT RECORD HUB =====")
-    print("1. Add Student")
-    print("2. View Students")
-    print("3. Search Student")
-    print("4. Exit")
+    print("====== SECUREPASS LAB ======")
+    print("1. Generate Secure Password")
+    print("2. View Saved Passwords")
+    print("3. Exit")
 
-    user_choice = input("Select Option: ")
+    selected_option = input("Choose option: ")
 
-    if user_choice == "1":
-        add_new_student()
+    if selected_option == "1":
+        build_secure_password()
 
-    elif user_choice == "2":
-        display_all_students()
+    elif selected_option == "2":
+        show_saved_passwords()
 
-    elif user_choice == "3":
-        search_student()
-
-    elif user_choice == "4":
-        print("Program Closed Successfully!")
+    elif selected_option == "3":
+        print("SecurePass Lab Closed!")
         break
 
     else:
-        print("Invalid Option! Please try again.")
+        print("Invalid option selected!")
